@@ -1,12 +1,5 @@
 <#
   Script de instalacion post-formateo.
-  Uso despues de formatear (PowerShell, sin nada mas instalado):
-    irm https://raw.githubusercontent.com/<usuario>/<repo>/main/install-apps.ps1 | iex
-
-  Publicacion:
-    1. Sube este archivo a un repo de GitHub.
-    2. Reemplaza $ScriptUrl abajo con la raw URL real del archivo y vuelve a subirlo
-       (se usa solo para la auto-elevacion a administrador).
 
   Nota: este script tambien desactiva Windows Defender (rendimiento). Antes de correrlo,
   desactiva "Proteccion contra alteraciones" a mano en Seguridad de Windows, o Windows
