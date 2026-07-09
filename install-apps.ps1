@@ -19,7 +19,7 @@
   de Nagle (latencia de red), y muestra extensiones/archivos ocultos.
 #>
 
-$ScriptUrl = "https://raw.githubusercontent.com/<usuario>/<repo>/main/install-apps.ps1"
+$ScriptUrl = "https://raw.githubusercontent.com/maaurissio/mis-scripts/refs/heads/main/install-apps.ps1"
 
 # --- Auto-elevacion a administrador (un solo UAC al inicio, no uno por app) ---
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
