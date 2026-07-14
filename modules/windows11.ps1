@@ -87,4 +87,13 @@ function Invoke-Windows11Tweaks {
         $classicMenuPath = "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
         Set-Reg -Path $classicMenuPath -Name "(default)" -Value "" -Type String
     }
+
+    # Agrega "Finalizar tarea" al click derecho sobre una app en la barra de tareas
+    Invoke-Tweak -Name "Forzar cierre desde la barra de tareas (End Task)" -Actions {
+        if ($Global:KhramBuild -lt 22631) {
+            $Global:KhramNote = "La opcion 'Finalizar tarea' necesita Windows 11 23H2 (build 22631) o mas nuevo; en esta build no aplica."
+            return
+        }
+        Set-Reg -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" -Name "TaskbarEndTask" -Value 1
+    }
 }
