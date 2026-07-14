@@ -18,8 +18,8 @@
   Inspirado en las tecnicas de Raphire/Win11Debloat y ChrisTitusTech/winutil.
 #>
 
-$ScriptUrl = "https://raw.githubusercontent.com/maaurissio/mis-scripts/refs/heads/main/install-apps.ps1"
-$WallpaperUrl = "https://raw.githubusercontent.com/maaurissio/mis-scripts/refs/heads/main/wall.png"
+$ScriptUrl = "https://raw.githubusercontent.com/maaurissio/optidab/refs/heads/optdev/opt.ps1"
+$WallpaperUrl = "https://raw.githubusercontent.com/maaurissio/optidab/refs/heads/optdev/wall.png"
 
 # --- Banner ---
 Write-Host @'
