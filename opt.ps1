@@ -4,7 +4,7 @@
 
 #>
 
-$RepoBase     = "https://raw.githubusercontent.com/maaurissio/optidab/refs/heads/optdev"
+$RepoBase     = "https://raw.githubusercontent.com/maaurissio/optidab/refs/heads/main"
 $ScriptUrl    = "$RepoBase/opt.ps1"
 $WallpaperUrl = "$RepoBase/wall.png"
 
