@@ -9,7 +9,7 @@ $ScriptUrl    = "$RepoBase/opt.ps1"
 $WallpaperUrl = "$RepoBase/wall.png"
 
 # --- Banner ---
-Write-Host @'
+$Banner = @'
  ,ggg,        gg  ,ggg,        gg  ,ggggggggggg,              ,ggg,  ,ggg, ,ggg,_,ggg,
 dP""Y8b       dP dP""Y8b       88 dP"""88""""""Y8,           dP""8I dP""Y8dP""Y88P""Y8b
 Yb, `88      d8' Yb, `88       88 Yb,  88      `8b          dP   88 Yb, `88'  `88'  `88
@@ -21,7 +21,8 @@ Yb, `88      d8' Yb, `88       88 Yb,  88      `8b          dP   88 Yb, `88'  `8
      88       Yb,     88       Y8,     88       Yb,Yb,_,dP       `8b,    88    88    Y8,
      88        Y8     88       `Y8     88        Y8 "Y8P"         `Y8    88    88    `Y8
 
-'@ -ForegroundColor Magenta
+'@
+Write-Host $Banner -ForegroundColor Magenta
 
 # Auto-elevacion a administrador
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -68,6 +69,12 @@ Initialize-Environment
 
 # Todas las preguntas primero, antes de tocar el sistema
 $config = Read-UserChoices
+
+# Ya con las respuestas, limpiamos la consola para que el output de los tweaks quede
+# separado y prolijo, y volvemos a mostrar el banner.
+Clear-Host
+Write-Host $Banner -ForegroundColor Magenta
+Write-Log "`n===== Aplicando optimizaciones =====" "Cyan"
 
 if ($config.RestorePoint) {
     New-KhramRestorePoint
