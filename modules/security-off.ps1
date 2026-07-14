@@ -3,10 +3,22 @@
   de Windows. Todo esto es a cambio de rendimiento.
 #>
 
+# Devuelve $true si Defender todavia esta en el equipo. Si ya lo sacaste (por ejemplo
+# con una corrida anterior), sus cmdlets y su servicio no existen, y hay que chequear
+# con Get-Command porque -ErrorAction NO silencia un "comando no encontrado".
+function Test-DefenderPresent {
+    if (Get-Command Get-MpComputerStatus -ErrorAction SilentlyContinue) { return $true }
+    if (Get-Service -Name WinDefend -ErrorAction SilentlyContinue) { return $true }
+    return $false
+}
+
 # Si la Proteccion contra alteraciones sigue prendida, Windows revierte solo el paso
 # de Defender. Microsoft la bloquea a proposito para que no se apague por script, asi
 # que cortamos aca y abrimos Seguridad de Windows para que la apagues a mano.
 function Assert-TamperProtectionOff {
+    if (-not (Get-Command Get-MpComputerStatus -ErrorAction SilentlyContinue)) {
+        return  # Defender no esta presente, no hay Tamper Protection que revisar.
+    }
     $defenderStatus = Get-MpComputerStatus -ErrorAction SilentlyContinue
     if ($defenderStatus -and $defenderStatus.IsTamperProtected) {
         Write-Log "`nLa Proteccion contra alteraciones esta ACTIVADA." "Red"
@@ -18,7 +30,21 @@ function Assert-TamperProtectionOff {
 }
 
 function Disable-WindowsDefender {
+    # Si Defender ya no esta (por ejemplo si corriste el script antes), dejamos igual la
+    # politica de registro por las dudas y salteamos el resto para no tirar errores.
+    if (-not (Test-DefenderPresent)) {
+        Write-Log "`nWindows Defender ya no esta en este equipo, se saltea la mayor parte de la seccion." "DarkGray"
+        Invoke-Tweak -Name "Politica DisableAntiSpyware de Defender" -Actions {
+            Set-Reg -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Value 1
+        }
+        return
+    }
+
     Invoke-Tweak -Name "Proteccion en tiempo real de Defender" -Actions {
+        if (-not (Get-Command Get-MpPreference -ErrorAction SilentlyContinue)) {
+            $Global:KhramNote = "El modulo de Defender no esta disponible, se saltea."
+            return
+        }
         $prefs = Get-MpPreference -ErrorAction SilentlyContinue
         if (-not $prefs -or -not $prefs.DisableRealtimeMonitoring) {
             Set-MpPreference -DisableRealtimeMonitoring $true -DisableBehaviorMonitoring $true `
@@ -33,7 +59,11 @@ function Disable-WindowsDefender {
     }
 
     Invoke-Tweak -Name "Tareas programadas de Defender" -Actions {
-        $tasks = Get-ScheduledTask -TaskPath "\Microsoft\Windows\Windows Defender\" -ErrorAction Stop
+        $tasks = Get-ScheduledTask -TaskPath "\Microsoft\Windows\Windows Defender\" -ErrorAction SilentlyContinue
+        if (-not $tasks) {
+            $Global:KhramNote = "No hay tareas de Defender (ya no estan o Defender no esta presente)."
+            return
+        }
         $enabledTasks = $tasks | Where-Object { $_.State -ne 'Disabled' }
         if ($enabledTasks) {
             $enabledTasks | Disable-ScheduledTask -ErrorAction SilentlyContinue | Out-Null
@@ -42,7 +72,11 @@ function Disable-WindowsDefender {
     }
 
     Invoke-Tweak -Name "Servicio WinDefend" -Actions {
-        $svc = Get-Service -Name WinDefend -ErrorAction Stop
+        $svc = Get-Service -Name WinDefend -ErrorAction SilentlyContinue
+        if (-not $svc) {
+            $Global:KhramNote = "El servicio WinDefend ya no existe."
+            return
+        }
         if ($svc.StartType -ne 'Disabled') {
             Set-Service -Name WinDefend -StartupType Disabled -ErrorAction Stop
             $Global:KhramChanged = $true
